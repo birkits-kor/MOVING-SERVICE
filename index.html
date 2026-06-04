@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>버킷츠 모션베드 이사(이전 설치) 서비스 신청</title>
+  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+  <style>
+    body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background: #f4f6f8; margin: 0; padding: 0; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .header { background: #1a1a1a; color: #fff; text-align: center; padding: 25px 20px; }
+    .header h1 { margin: 0; font-size: 22px; font-weight: bold; }
+    .header p { margin: 10px 0 0 0; font-size: 14px; color: #ccc; }
+    
+    /* 본문 섹션 */
+    .section { padding: 25px 20px; border-bottom: 1px solid #eee; }
+    .section h2 { font-size: 18px; color: #1a1a1a; border-left: 4px solid #1a1a1a; padding-left: 10px; margin-top: 0; margin-bottom: 15px; }
+    .content-box { background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; line-height: 1.6; }
+    
+    /* 텍스트 스타일 */
+    .highlight { color: #e53935; font-weight: bold; }
+    .text-sm { font-size: 13px; color: #666; line-height: 1.5; }
+    ul { padding-left: 20px; margin: 10px 0; font-size: 14px; line-height: 1.6; }
+    li { margin-bottom: 8px; }
+    a { color: #0056b3; text-decoration: none; font-weight: bold; }
+    a:hover { text-decoration: underline; }
+
+    /* 계좌 복사 버튼 */
+    .account-box { display: flex; justify-content: space-between; align-items: center; background: #e8f0fe; padding: 12px 15px; border-radius: 6px; margin: 10px 0; border: 1px solid #c8d6e5; font-weight: bold; color: #1a1a1a; }
+    .btn-copy { background: #e53935; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; }
+
+    /* 폼 스타일 */
+    .form-section { padding: 30px 20px; background: #fff; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; color: #1a1a1a; }
+    input[type="text"], input[type="tel"], input[type="date"], select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font-size: 14px; transition: border-color 0.2s; }
+    input:focus, select:focus, textarea:focus { border-color: #1a1a1a; outline: none; }
+    textarea { resize: vertical; height: 80px; }
+    
+    /* 주소 그룹 (클릭 유도) */
+    .address-group { display: flex; gap: 5px; margin-bottom: 5px; }
+    .address-group input { background-color: #f9f9f9; cursor: pointer; margin-bottom: 0; }
+    .address-layer { display: none; border: 1px solid #ddd; width: 100%; height: 300px; margin-bottom: 10px; position: relative; }
+    .btn-search { background: #555; color: #fff; border: none; padding: 12px 15px; border-radius: 4px; cursor: pointer; white-space: nowrap; font-size: 14px; }
+
+    /* 라디오 버튼 그룹 */
+    .radio-group { display: flex; gap: 15px; margin-bottom: 10px; }
+    .radio-label { font-size: 14px; font-weight: normal; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+
+    /* 버튼 */
+    .btn-submit { width: 100%; background: #1a1a1a; color: #fff; font-size: 16px; font-weight: bold; padding: 16px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; transition: background 0.3s; }
+    .btn-submit:hover { background: #333; }
+    .loading { display: none; text-align: center; font-weight: bold; color: #0056b3; margin-top: 15px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>버킷츠 이사(이전 설치) 서비스</h1>
+    <p>안전하고 완벽한 침대 이전을 도와드립니다.</p>
+  </div>
+
+  <div class="section">
+    <h2>필수 확인 사항</h2>
+    <div class="content-box">
+      직접 혹은 이삿짐 센터를 통해서도 이동이 가능하실 수 있으니, <b>먼저 아래 내용을 검토하신 후 신청</b>해 주세요!<br><br>
+      <ul>
+        <li>방 안에서 침대 이동 시, 하단이 PVC 발로 되어있어 조심히 끌면 끌립니다. <span class="highlight">(전선 밟힘 주의)</span></li>
+        <li>프레임/헤드/테이블 3개로 분해하는 것은 어렵지 않습니다. (볼트 4~10개만 풀면 됩니다.)</li>
+        <li>프레임 운반은 2~4명이 필요하며, 헤드/테이블은 1명이 옮길 수 있습니다. <span class="text-sm">(1인이 프레임을 옮기려면 완전 분해 필요)</span></li>
+        <li>전선이 찍히거나 잘리지 않도록 <b>테이프로 붙여서 운반</b>하셔야 합니다.</li>
+        <li><span class="highlight">매트리스는 운반 미포함입니다.</span> (기사님 혼자 옮기시기 어려우니 다른 이삿짐과 함께 옮겨주시거나, 고객님께서 도와주셔야 가능합니다.)</li>
+      </ul>
+      <br>
+      <b>[📺 자가 분해 조립 영상 가이드]</b><br>
+      👉 <a href="https://youtu.be/t5CJDnBfs68" target="_blank">금속 프레임 버전 (20년 7월 이후)</a><br>
+      👉 <a href="https://youtu.be/_FAWnLgEh5w" target="_blank">목재 프레임 버전 (20년 6월 이전)</a>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>서비스별 요금 안내</h2>
+    <p class="text-sm highlight">※ 세금계산서 발급 가능 (발급 시 비용 10% 추가 필요)</p>
+    <div class="content-box text-sm">
+      <b>1. 전체 이사 서비스 (분해운반조립)</b>
+      <ul>
+        <li>수도권 25.5만원 / 지방 35.5만원</li>
+        <li>S+S 커플 수도권 (1.25배) 31.875만원</li>
+        <li>S+S 커플 지방 (1.5배) 38.25만원</li>
+        <li>SS+SS 커플 (1.5배) 38.25만원</li>
+        <li><span class="highlight">참고:</span> 같은 건물이나 단지 내 이동도 동일. 분해 후 나중에 재방문하여 운반 조립 시 재방문비 3만원 추가. 엘리베이터 없는 경우 층당 1만원 계단 배송비 추가.</li>
+      </ul>
+      
+      <b>2. 조립 서비스만 신청</b>
+      <ul>
+        <li>비용: 수도권 9.5만원 / 지방 12.5만원</li>
+        <li>분해, 운반을 이삿짐센터나 직접 하는 경우 <b>반드시 안내된 영상대로 분해</b>하셔야 합니다. (영상과 다르게 과도하게 분해할 경우 비용 발생, 부품 분실 시 미분실 부품만 조립 지원. 구매 링크와 조립 방법은 안내해 드림)</li>
+      </ul>
+
+      <b>3. 분해만:</b> 수도권 8.5만원 / 지방 13.5만원<br>
+      <span class="text-sm">(분해 후 재방문하여 조립 신청하는 경우는 2번과 3번 비용을 더하시면 됩니다)</span><br><br>
+      <b>4. 분해, 운반만:</b> 수도권 18.5만원 / 지방 25.5만원<br>
+      <b>5. 운반, 재조립만:</b> 수도권 22.5만원 / 지방 32.5만원<br>
+      <b>6. 분해, 재조립만 (같은 집 다른 방 이동 설치):</b> 수도권 17.5만원 / 지방 25.5만원
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>신청 전 주의 및 공구 안내</h2>
+    <div class="content-box text-sm">
+      <ul>
+        <li>서비스 신청은 <b>15일 이상 미리</b> 부탁드립니다.</li>
+        <li>요청일이 있으신 경우 다른 물품 이사나 인테리어 공사일과 겹치지 않아야 합니다. (겹쳐서 대기 시 <b>시간당 5만원 대기료</b>가 발생하니 다른 날로 부탁드리며, 부득이할 경우 오전/오후 확실히 구분 필수)</li>
+        <li>진행 가능 일정은 알려드리기 어렵습니다. 원하시는 일정(가능한 빠르게/0월0일 등)을 알려주시면 고려하여 해피콜 드리겠습니다. 해피콜 언제까지 줘야 되는지 적으셔도 됩니다. 진행 전 취소 및 환불은 당연히 가능합니다.</li>
+      </ul>
+      <br>
+      <b>[🛠️ 침대 프레임 조립분해 공구]</b><br>
+      - 나무 프레임 버전(~2020년 6월): 드릴만 필요<br>
+      - 금속 프레임 버전 일부(아래 공구 필요):<br>
+      1. 드릴 필요 (없다면 드라이버 가능, 주민센터 대여 확인 권장)<br>
+      2.1 자석 비트 소켓 10mm(M6) - 프레임 너트 조립분해 필요<br>
+      2.2 롱 비트 소켓 10mm(M6) - 목재상판-프레임 너트 조립분해 필요<br>
+      2.3 롱 비트 소켓 8mm(M5) - 목재상판 너트 조립분해 (필수는 아님, 뺀치 등으로 대체 가능)<br>
+      * 소켓은 구매 시 제공드렸으나 분실하셨으면 적힌 이름으로 검색하여 구매 가능<br>
+      3. 금속 프레임 일부 초기 버전: 육각렌치도 필요 (다이소 육각 렌치 세트 활용 가능)
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h2>이사 서비스 신청서</h2>
+    <p class="text-sm" style="margin-bottom: 20px;">
+      신청방법) 톡톡으로 신청: <a href="http://talk.naver.com/WCE5B4" target="_blank">talk.naver.com/WCE5B4</a><br>
+      <b>선입금 필수!</b> 정산 누락 방지를 위해 아래로 입금 확인 후 신청이 진행됩니다. 
+    </p>
+
+    <div class="account-box">
+      <div>
+        신한 59704532966 <span style="font-weight:normal; color:#555;">하영웅(버킷츠)</span>
+      </div>
+      <button type="button" class="btn-copy" onclick="copyAccount()">계좌 복사</button>
+    </div>
+    <p class="text-sm highlight" style="margin-top: 0;">※ 입금메시지: "성함+이사" (예: 홍길동이사) 로 부탁드립니다.</p>
+
+    <form id="moveForm" onsubmit="submitForm(event)">
+      <div class="form-group">
+        <label>1. 입금 시간 및 입금자명</label>
+        <input type="text" id="depositTime" placeholder="예: 11월 5일 오후 2시 홍길동이사" required>
+      </div>
+
+      <div class="form-group">
+        <label>2. 신청자 성함</label>
+        <input type="text" id="applicantName" placeholder="신청하시는 분 성함" required>
+      </div>
+
+      <div class="form-group">
+        <label>3. 신청자 연락처</label>
+        <input type="tel" id="applicantPhone" placeholder="010-XXXX-XXXX" required>
+      </div>
+
+      <div class="form-group">
+        <label>4. 이사(설치) 요청일</label>
+        <input type="date" id="requestDate" required>
+      </div>
+
+      <div class="form-group">
+        <label>5. 중고 거래로 구매하셨나요?</label>
+        <div class="radio-group">
+          <label class="radio-label"><input type="radio" name="isSecondHand" value="예(중고구매)"> 예(중고구매)</label>
+          <label class="radio-label"><input type="radio" name="isSecondHand" value="아니오(본인구매)" checked> 아니오(본인 최초구매)</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>6. 최초 구매자 성함</label>
+        <p class="text-sm" style="margin-top:0;">* 구매제품 버전확인 및 중고구매인 경우 양쪽에 방문 연락이 되어야 합니다.</p>
+        <input type="text" id="buyerName" placeholder="최초 구매자 성함" required>
+      </div>
+
+      <div class="form-group">
+        <label>7. 최초 구매자 연락처</label>
+        <input type="tel" id="buyerPhone" placeholder="최초 구매자 연락처" required>
+      </div>
+
+      <div class="form-group">
+        <label>8. 이사 가기 전 주소 (출발지)</label>
+        <div class="address-group">
+          <input type="text" id="postcode_before" placeholder="우편번호" readonly onclick="openPostcode('before')">
+          <button type="button" class="btn-search" onclick="openPostcode('before')">주소 검색</button>
+        </div>
+        <input type="text" id="address_before" placeholder="기본 주소 (클릭하여 검색)" style="margin-bottom: 5px;" readonly onclick="openPostcode('before')">
+        <div id="layer_before" class="address-layer">
+          <img src="//t1.daumcdn.net/postcode/resource/images/close.png" style="cursor:pointer;position:absolute;right:-3px;top:-3px;z-index:1" onclick="closePostcode('before')" alt="닫기 버튼">
+        </div>
+        <input type="text" id="detail_before" placeholder="상세 주소 (동, 호수)" required>
+      </div>
+
+      <div class="form-group">
+        <label>9. 이사 가는 주소 (도착지)</label>
+        <div class="address-group">
+          <input type="text" id="postcode_after" placeholder="우편번호" readonly onclick="openPostcode('after')">
+          <button type="button" class="btn-search" onclick="openPostcode('after')">주소 검색</button>
+        </div>
+        <input type="text" id="address_after" placeholder="기본 주소 (클릭하여 검색)" style="margin-bottom: 5px;" readonly onclick="openPostcode('after')">
+        <div id="layer_after" class="address-layer">
+          <img src="//t1.daumcdn.net/postcode/resource/images/close.png" style="cursor:pointer;position:absolute;right:-3px;top:-3px;z-index:1" onclick="closePostcode('after')" alt="닫기 버튼">
+        </div>
+        <input type="text" id="detail_after" placeholder="상세 주소 (동, 호수)" required>
+      </div>
+
+      <div class="form-group">
+        <label>10. 구매 옵션 및 사이즈 / 수량</label>
+        <p class="text-sm" style="margin-top:0;">* 프레임, 헤드 등 각 사이즈(SS/Q/S)와 수량을 회신해 주세요.</p>
+        <textarea id="options" placeholder="예: SS프레임 1개, 헤드 SS 1개" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>11. 해피콜 요청 시간 및 기타 문의</label>
+        <p class="text-sm" style="margin-top:0;">* 원하시는 일정(빠르게/0월0일 등)이나 해피콜 언제까지 줘야 되는지 적어주셔도 됩니다.</p>
+        <textarea id="memo" placeholder="해피콜 요청 시간, 특이사항 등 자유롭게 적어주세요."></textarea>
+      </div>
+
+      <button type="submit" class="btn-submit">신청서 제출하기</button>
+      <div id="loading" class="loading">데이터를 안전하게 전송 중입니다. 잠시만 기다려주세요...</div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // ★★★ 백엔드(구글 스크립트) 웹앱 URL 입력 영역 ★★★
+  const WEB_APP_URL = "여기에_1단계에서_복사하신_웹앱_URL을_붙여넣으세요";
+
+  // 계좌번호 복사 기능
+  function copyAccount() {
+    var dummy = document.createElement("textarea");
+    document.body.appendChild(dummy);
+    dummy.value = "59704532966"; 
+    dummy.select();
+    document.execCommand("copy");
+    document.body.removeChild(dummy);
+    alert("계좌번호(59704532966)가 복사되었습니다.");
+  }
+
+  // 다음 주소 검색 레이어(내장형) 
+  function openPostcode(type) {
+    var element_layer = document.getElementById('layer_' + type);
+    new daum.Postcode({
+      oncomplete: function(data) {
+        var addr = ''; 
+        if (data.userSelectedType === 'R') { 
+          addr = data.roadAddress;
+        } else { 
+          addr = data.jibunAddress;
+        }
+        document.getElementById('postcode_' + type).value = data.zonecode;
+        document.getElementById('address_' + type).value = addr;
+        document.getElementById('detail_' + type).focus();
+        element_layer.style.display = 'none';
+      },
+      width : '100%',
+      height : '100%',
+      maxSuggestItems : 5
+    }).embed(element_layer);
+    element_layer.style.display = 'block';
+  }
+
+  function closePostcode(type) {
+    document.getElementById('layer_' + type).style.display = 'none';
+  }
+
+  // 폼 데이터 제출 
+  function submitForm(event) {
+    event.preventDefault();
+    
+    if(!document.getElementById('address_before').value || !document.getElementById('address_after').value) {
+      alert("출발지와 도착지 주소를 모두 검색하여 입력해주세요.");
+      return;
+    }
+
+    document.querySelector('.btn-submit').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+
+    var isSecondHand = document.querySelector('input[name="isSecondHand"]:checked').value;
+    var fullAddressBefore = "[" + document.getElementById('postcode_before').value + "] " + document.getElementById('address_before').value + " " + document.getElementById('detail_before').value;
+    var fullAddressAfter = "[" + document.getElementById('postcode_after').value + "] " + document.getElementById('address_after').value + " " + document.getElementById('detail_after').value;
+
+    var payload = {
+      depositTime: document.getElementById('depositTime').value,
+      requestDate:
