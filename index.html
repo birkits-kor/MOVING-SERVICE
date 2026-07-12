@@ -34,9 +34,12 @@
     .account-box { display: flex; justify-content: space-between; align-items: center; background: #e8f0fe; padding: 12px 15px; border-radius: 6px; margin: 10px 0; border: 1px solid #c8d6e5; font-weight: bold; color: #1a1a1a; }
     .btn-copy { background: #e53935; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; }
 
-    /* 톡톡 문의 버튼 */
+    /* 문의 버튼 (톡톡 & 카톡) */
     .btn-talk { display: block; text-align: center; background: #03c75a; color: #fff; font-size: 16px; font-weight: bold; padding: 12px; border-radius: 6px; text-decoration: none; margin: 15px 0; transition: 0.3s; }
     .btn-talk:hover { background: #02b350; text-decoration: none; color: #fff; }
+    
+    .btn-kakao { display: block; text-align: center; background: #FEE500; color: #191919; font-size: 15px; font-weight: bold; padding: 12px; border-radius: 6px; text-decoration: none; margin-top: 12px; transition: 0.3s; }
+    .btn-kakao:hover { background: #F4DC00; text-decoration: none; color: #191919; }
 
     /* 폼 스타일 */
     .form-section { padding: 30px 20px; background: #fff; }
@@ -92,8 +95,13 @@
 
   <div class="section">
     <h2>서비스별 요금 안내</h2>
-    <div class="highlight" style="display:inline-block; margin-bottom:15px; font-size:16px; padding: 8px 12px; border: 1px solid #e53935;">
-      ※ 세금계산서 발급 가능 (발급이 필요하신 경우 아래 비용에 10%를 추가 입금해주세요)
+    
+    <div class="highlight-box" style="border: 2px solid #e53935; padding: 15px; margin-bottom: 20px;">
+      <span style="font-size: 15px;"><b>※ 세금계산서 발급 가능</b></span><br>
+      발급이 필요하신 경우 아래 비용에 <span style="color:#e53935; font-weight:bold;">10%를 추가 입금</span>해주시고, 아래 <b>오픈카톡으로 사업자 등록증과 이메일 정보</b>를 보내주세요.
+      <a href="https://open.kakao.com/o/sV8F0c4c" target="_blank" class="btn-kakao">
+        💬 카카오톡으로 발급 정보 보내기
+      </a>
     </div>
     
     <div class="content-box text-sm">
@@ -158,7 +166,7 @@
     </div>
     
     <a href="http://talk.naver.com/WCE5B4" target="_blank" class="btn-talk">
-      💬 추가 문의 톡톡으로 하기
+      💬 추가 문의 네이버 톡톡으로 하기
     </a>
   </div>
 
@@ -359,7 +367,7 @@
     var isSecondHand = document.querySelector('input[name="isSecondHand"]:checked').value;
     var fullRequestDate = document.getElementById('requestDate1').value + " ~ " + document.getElementById('requestDate2').value;
 
-    // 💡 수정됨: 우편번호를 완전히 빼고, 기본 주소와 상세 주소만 합치기!
+    // 우편번호 빼고 기본 주소와 상세 주소만 합치기
     var fullAddressBefore = document.getElementById('address_before').value + " " + document.getElementById('detail_before').value;
     var fullAddressAfter = document.getElementById('address_after').value + " " + document.getElementById('detail_after').value;
 
@@ -367,7 +375,7 @@
       depositTime: document.getElementById('depositTime').value,
       requestDate: fullRequestDate,
       applicantName: document.getElementById('applicantName').value,
-      applicantPhone: document.getElementById('applicantPhone').value, // 이미 010-XXXX-XXXX 형식으로 입력됨
+      applicantPhone: document.getElementById('applicantPhone').value,
       isSecondHand: isSecondHand,
       buyerName: document.getElementById('buyerName').value || '생략(동일)',
       buyerPhone: document.getElementById('buyerPhone').value || '생략(동일)',
