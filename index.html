@@ -61,6 +61,28 @@
     .radio-group { display: flex; gap: 15px; margin-bottom: 10px; }
     .radio-label { font-size: 14px; font-weight: normal; display: flex; align-items: center; gap: 5px; cursor: pointer; }
 
+    /* 자동 비용 계산기 */
+    .fee-calculator { background: #fff; border: 2px solid #1a1a1a; border-radius: 10px; padding: 20px; margin-top: 20px; }
+    .fee-calculator-title { margin: 0 0 6px; font-size: 17px; color: #1a1a1a; }
+    .fee-calculator-desc { margin: 0 0 18px; font-size: 13px; line-height: 1.5; color: #666; }
+    .fee-field { margin-bottom: 16px; }
+    .fee-field:last-of-type { margin-bottom: 0; }
+    .fee-field-label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: bold; color: #1a1a1a; }
+    .fee-region-group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .fee-region-option { position: relative; margin: 0; }
+    .fee-region-option input { position: absolute; opacity: 0; pointer-events: none; }
+    .fee-region-option span { display: block; padding: 12px 8px; border: 1px solid #ddd; border-radius: 6px; background: #fff; text-align: center; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .fee-region-option input:checked + span { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
+    .fee-region-option input:focus-visible + span { outline: 3px solid rgba(0, 86, 179, 0.25); outline-offset: 2px; }
+    .fee-result { margin-top: 18px; padding: 18px 15px; border-radius: 8px; background: #f4f6f8; text-align: center; }
+    .fee-result.is-calculated { background: #fff4f4; border: 1px solid #ffcdd2; }
+    .fee-result-label { margin-bottom: 6px; font-size: 13px; color: #666; }
+    .fee-result-service { margin-bottom: 4px; font-size: 14px; font-weight: bold; color: #333; }
+    .fee-result-price { font-size: 25px; line-height: 1.3; font-weight: bold; color: #e53935; }
+    .fee-result-unit { margin-top: 3px; font-size: 13px; color: #666; }
+    .fee-result-note { margin: 10px 0 0; font-size: 12px; line-height: 1.5; color: #666; }
+    .fee-bed-group { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+
     /* 버튼 */
     .btn-submit { width: 100%; background: #1a1a1a; color: #fff; font-size: 16px; font-weight: bold; padding: 16px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; transition: background 0.3s; }
     .btn-submit:hover { background: #333; }
@@ -110,8 +132,9 @@
         <ul style="margin-top:5px; font-weight:bold; color:#1a1a1a;">
           <li>수도권 25.5만원 / 지방 35.5만원</li>
           <li>S+S 커플 수도권 (1.25배) 31.875만원</li>
-          <li>S+S 커플 지방 (1.5배) 38.25만원</li>
-          <li>SS+SS 커플 (1.5배) 38.25만원</li>
+          <li>S+S 커플 지방 (1.25배) 44.375만원</li>
+          <li>SS+SS 커플 수도권 (1.5배) 38.25만원</li>
+          <li>SS+SS 커플 지방 (1.5배) 53.25만원</li>
         </ul>
         <span class="text-sm" style="color:#555;">※ 같은 건물이나 단지 내 이동도 동일. 분해 후 나중에 재방문하여 운반 조립 시 재방문비 3만원 추가. 엘리베이터 없는 경우 층당 1만원 계단 배송비 추가.</span>
       </div>
@@ -135,7 +158,66 @@
       <div style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px;">
         <b>4. 분해, 운반만:</b> 수도권 18.5만원 / 지방 25.5만원<br>
         <b>5. 운반, 재조립만:</b> 수도권 22.5만원 / 지방 32.5만원<br>
-        <b>6. 분해, 재조립만 (같은 집 다른 방 이동 설치):</b> 수도권 17.5만원 / 지방 25.5만원
+        <b>6. 분해, 재조립만 (같은 집 다른 방 이동 설치):</b> 수도권 18만원 / 지방 26만원<br>
+        <span class="text-sm" style="display:inline-block; margin-top:8px; color:#555;">※ 모든 서비스의 커플 구성 비용: S+S는 지역별 기본요금의 1.25배, SS+SS는 지역별 기본요금의 1.5배</span>
+      </div>
+    </div>
+
+    <div class="fee-calculator" aria-labelledby="feeCalculatorTitle">
+      <h3 id="feeCalculatorTitle" class="fee-calculator-title">💰 서비스 비용 자동 계산</h3>
+      <p class="fee-calculator-desc">원하시는 서비스, 지역, 침대 구성을 선택하면 비용이 바로 표시됩니다.</p>
+
+      <div class="fee-field">
+        <label for="feeService" class="fee-field-label">1. 서비스 선택</label>
+        <select id="feeService" onchange="calculateFee()">
+          <option value="">서비스를 선택해 주세요</option>
+          <option value="full">전체 (분해 + 운반 + 조립)</option>
+          <option value="assembly">조립만</option>
+          <option value="disassembly">분해만</option>
+          <option value="disassemblyTransport">분해 + 운반</option>
+          <option value="transportAssembly">운반 + 조립</option>
+          <option value="roomMove">분해 + 재조립 (같은 집 다른 방 이동 설치)</option>
+        </select>
+      </div>
+
+      <fieldset class="fee-field" style="border:0; padding:0; margin-left:0; margin-right:0;">
+        <legend class="fee-field-label">2. 지역 선택</legend>
+        <div class="fee-region-group">
+          <label class="fee-region-option">
+            <input type="radio" name="feeRegion" value="capital" onchange="calculateFee()">
+            <span>수도권</span>
+          </label>
+          <label class="fee-region-option">
+            <input type="radio" name="feeRegion" value="local" onchange="calculateFee()">
+            <span>지방</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="fee-field" style="border:0; padding:0; margin-left:0; margin-right:0;">
+        <legend class="fee-field-label">3. 침대 구성</legend>
+        <div class="fee-bed-group">
+          <label class="fee-region-option">
+            <input type="radio" name="feeBedConfig" value="single" onchange="calculateFee()" checked>
+            <span>일반</span>
+          </label>
+          <label class="fee-region-option">
+            <input type="radio" name="feeBedConfig" value="sPlusS" onchange="calculateFee()">
+            <span>S+S</span>
+          </label>
+          <label class="fee-region-option">
+            <input type="radio" name="feeBedConfig" value="ssPlusSs" onchange="calculateFee()">
+            <span>SS+SS</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div id="feeResult" class="fee-result" aria-live="polite">
+        <div class="fee-result-label">예상 기본 비용</div>
+        <div id="feeResultService" class="fee-result-service">서비스와 지역을 모두 선택해 주세요.</div>
+        <div id="feeResultPrice" class="fee-result-price">-</div>
+        <div id="feeResultUnit" class="fee-result-unit"></div>
+        <p id="feeResultNote" class="fee-result-note">재방문, 계단 배송 및 세금계산서 발급 시 추가 비용은 위 안내를 확인해 주세요.</p>
       </div>
     </div>
   </div>
@@ -279,6 +361,79 @@
 <script>
   // ★★★ 백엔드(구글 스크립트) 웹앱 URL 입력 영역 ★★★
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby-H6xpkyg4fSIQAG5cHzU4qycg5wpo1eZYB3vT0cKJDA1LKfVmJycW4bliHVx0TKMLfw/exec";
+
+  // 서비스별 기본 요금 (원)
+  const SERVICE_FEES = {
+    full: {
+      name: '전체 (분해 + 운반 + 조립)',
+      capital: 255000,
+      local: 355000
+    },
+    assembly: {
+      name: '조립만',
+      capital: 95000,
+      local: 125000
+    },
+    disassembly: {
+      name: '분해만',
+      capital: 85000,
+      local: 135000
+    },
+    disassemblyTransport: {
+      name: '분해 + 운반',
+      capital: 185000,
+      local: 255000
+    },
+    transportAssembly: {
+      name: '운반 + 조립',
+      capital: 225000,
+      local: 325000
+    },
+    roomMove: {
+      name: '분해 + 재조립 (같은 집 다른 방 이동 설치)',
+      capital: 180000,
+      local: 260000
+    }
+  };
+
+  const REGION_NAMES = {
+    capital: '수도권',
+    local: '지방'
+  };
+
+  const BED_CONFIGS = {
+    single: { name: '일반', multiplier: 1 },
+    sPlusS: { name: 'S+S', multiplier: 1.25 },
+    ssPlusSs: { name: 'SS+SS', multiplier: 1.5 }
+  };
+
+  function calculateFee() {
+    var serviceKey = document.getElementById('feeService').value;
+    var selectedRegion = document.querySelector('input[name="feeRegion"]:checked');
+    var selectedBedConfig = document.querySelector('input[name="feeBedConfig"]:checked');
+    var resultBox = document.getElementById('feeResult');
+    var resultService = document.getElementById('feeResultService');
+    var resultPrice = document.getElementById('feeResultPrice');
+    var resultUnit = document.getElementById('feeResultUnit');
+
+    if (!serviceKey || !selectedRegion) {
+      resultBox.classList.remove('is-calculated');
+      resultService.textContent = '서비스와 지역을 모두 선택해 주세요.';
+      resultPrice.textContent = '-';
+      resultUnit.textContent = '';
+      return;
+    }
+
+    var service = SERVICE_FEES[serviceKey];
+    var regionKey = selectedRegion.value;
+    var bedConfig = BED_CONFIGS[selectedBedConfig.value];
+    var fee = service[regionKey] * bedConfig.multiplier;
+
+    resultBox.classList.add('is-calculated');
+    resultService.textContent = service.name + ' · ' + REGION_NAMES[regionKey] + ' · ' + bedConfig.name;
+    resultPrice.textContent = fee.toLocaleString('ko-KR') + '원';
+    resultUnit.textContent = '(' + (fee / 10000).toLocaleString('ko-KR') + '만원)';
+  }
 
   // 1. 전화번호 입력 시 하이픈(-) 자동 추가 기능
   function onInputPhone(target) {
