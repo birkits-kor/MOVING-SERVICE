@@ -89,13 +89,22 @@
     .loading { display: none; text-align: center; font-weight: bold; color: #0056b3; margin-top: 15px; }
 
     /* 신청 조회 및 수정 */
-    .lookup-panel { margin-bottom: 20px; border: 1px solid #b9cbe3; border-radius: 8px; background: #f5f9ff; overflow: hidden; }
-    .lookup-panel summary { padding: 15px; color: #174a7e; font-size: 15px; font-weight: bold; cursor: pointer; }
-    .lookup-panel[open] summary { border-bottom: 1px solid #dbe6f3; }
-    .lookup-content { padding: 15px; }
+    .lookup-panel { margin: 0 0 24px; border: 2px solid #0056b3; border-radius: 10px; background: #f5f9ff; box-shadow: 0 4px 12px rgba(0, 86, 179, 0.18); overflow: hidden; }
+    .lookup-panel summary { display: flex; align-items: center; gap: 12px; padding: 17px 15px; background: linear-gradient(135deg, #0066d6, #004b9b); color: #fff; cursor: pointer; list-style: none; }
+    .lookup-panel summary::-webkit-details-marker { display: none; }
+    .lookup-panel summary:focus-visible { outline: 3px solid rgba(255, 193, 7, 0.8); outline-offset: -4px; }
+    .lookup-summary-icon { display: flex; flex: 0 0 42px; width: 42px; height: 42px; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.18); font-size: 22px; }
+    .lookup-summary-text { flex: 1; min-width: 0; }
+    .lookup-summary-text strong { display: block; margin-bottom: 3px; font-size: 18px; line-height: 1.25; }
+    .lookup-summary-text small { display: block; color: rgba(255,255,255,0.88); font-size: 12px; font-weight: normal; line-height: 1.4; }
+    .lookup-summary-arrow { flex: 0 0 auto; font-size: 17px; transition: transform 0.2s; }
+    .lookup-panel[open] .lookup-summary-arrow { transform: rotate(180deg); }
+    .lookup-panel[open] summary { border-bottom: 1px solid #c8d9ee; }
+    .lookup-content { padding: 18px 15px; background: #f8fbff; }
     .lookup-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
     .lookup-grid .form-group { margin-bottom: 0; }
-    .btn-lookup { width: 100%; padding: 13px; border: 0; border-radius: 4px; background: #0056b3; color: #fff; font-size: 14px; font-weight: bold; cursor: pointer; }
+    .btn-lookup { width: 100%; padding: 15px; border: 0; border-radius: 6px; background: #0056b3; box-shadow: 0 3px 8px rgba(0, 86, 179, 0.22); color: #fff; font-size: 15px; font-weight: bold; cursor: pointer; }
+    .btn-lookup:hover { background: #00448f; }
     .btn-lookup:disabled, .btn-submit:disabled { opacity: 0.6; cursor: wait; }
     .lookup-status { min-height: 20px; margin: 10px 0 0; font-size: 13px; line-height: 1.5; }
     .lookup-status.error { color: #c62828; }
@@ -275,7 +284,14 @@
     <h2>이사 서비스 신청서</h2>
 
     <details id="lookupPanel" class="lookup-panel">
-      <summary>이미 신청하셨나요? 신청 내역 조회·수정</summary>
+      <summary>
+        <span class="lookup-summary-icon" aria-hidden="true">🔎</span>
+        <span class="lookup-summary-text">
+          <strong>신청 내역 조회·수정</strong>
+          <small>이미 신청하셨다면 여기를 눌러 확인해 주세요</small>
+        </span>
+        <span class="lookup-summary-arrow" aria-hidden="true">▼</span>
+      </summary>
       <div class="lookup-content">
         <p class="text-sm" style="margin-top:0;">신청할 때 입력한 보내는 분 이름과 전화번호 뒤 4자리를 입력해 주세요.</p>
         <div class="lookup-grid">
