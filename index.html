@@ -87,6 +87,25 @@
     .btn-submit { width: 100%; background: #1a1a1a; color: #fff; font-size: 16px; font-weight: bold; padding: 16px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; transition: background 0.3s; }
     .btn-submit:hover { background: #333; }
     .loading { display: none; text-align: center; font-weight: bold; color: #0056b3; margin-top: 15px; }
+
+    /* 신청 조회 및 수정 */
+    .lookup-panel { margin-bottom: 20px; border: 1px solid #b9cbe3; border-radius: 8px; background: #f5f9ff; overflow: hidden; }
+    .lookup-panel summary { padding: 15px; color: #174a7e; font-size: 15px; font-weight: bold; cursor: pointer; }
+    .lookup-panel[open] summary { border-bottom: 1px solid #dbe6f3; }
+    .lookup-content { padding: 15px; }
+    .lookup-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .lookup-grid .form-group { margin-bottom: 0; }
+    .btn-lookup { width: 100%; padding: 13px; border: 0; border-radius: 4px; background: #0056b3; color: #fff; font-size: 14px; font-weight: bold; cursor: pointer; }
+    .btn-lookup:disabled, .btn-submit:disabled { opacity: 0.6; cursor: wait; }
+    .lookup-status { min-height: 20px; margin: 10px 0 0; font-size: 13px; line-height: 1.5; }
+    .lookup-status.error { color: #c62828; }
+    .lookup-status.success { color: #1b5e20; }
+    .edit-mode-banner { display: none; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 18px; padding: 13px; border-radius: 6px; background: #e8f0fe; color: #173f6d; font-size: 13px; font-weight: bold; }
+    .btn-cancel-edit { flex: 0 0 auto; padding: 7px 10px; border: 1px solid #8ca8c8; border-radius: 4px; background: #fff; color: #173f6d; cursor: pointer; }
+    .submission-success { display: none; margin-top: 18px; padding: 20px 15px; border: 2px solid #2e7d32; border-radius: 8px; background: #f1f8f2; text-align: center; }
+    .submission-success h3 { margin: 0 0 8px; color: #1b5e20; font-size: 18px; }
+    .submission-success p { margin: 7px 0; font-size: 13px; line-height: 1.5; }
+    .lookup-key-value { display: block; margin: 12px 0; font-size: 17px; font-weight: bold; color: #1a1a1a; word-break: keep-all; }
   </style>
 </head>
 <body>
@@ -254,6 +273,26 @@
 
   <div class="form-section">
     <h2>이사 서비스 신청서</h2>
+
+    <details id="lookupPanel" class="lookup-panel">
+      <summary>이미 신청하셨나요? 신청 내역 조회·수정</summary>
+      <div class="lookup-content">
+        <p class="text-sm" style="margin-top:0;">신청할 때 입력한 보내는 분 이름과 전화번호 뒤 4자리를 입력해 주세요.</p>
+        <div class="lookup-grid">
+          <div class="form-group">
+            <label for="lookupName">보내는 분 이름</label>
+            <input type="text" id="lookupName" placeholder="예: 홍길동" autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label for="lookupPhoneLast4">전화번호 뒤 4자리</label>
+            <input type="tel" id="lookupPhoneLast4" placeholder="예: 5678" maxlength="4" inputmode="numeric" oninput="onInputLastFour(this)" autocomplete="off">
+          </div>
+          <button type="button" id="lookupButton" class="btn-lookup" onclick="lookupApplication()">신청 내역 조회하기</button>
+        </div>
+        <p id="lookupStatus" class="lookup-status" aria-live="polite"></p>
+        <p class="text-sm" style="margin-bottom:0;">※ 동일한 이름과 뒤 4자리로 신청한 내역이 여러 건이면 개인정보 보호를 위해 온라인 조회가 제한됩니다.</p>
+      </div>
+    </details>
     
     <div class="highlight-box" style="text-align: center; padding: 25px 20px; font-size: 16px; background-color: #fffafb; margin-bottom: 20px; border: 3px solid #e53935;">
       <span style="color:#e53935; font-size: 24px;"><b>🚨 선입금 필수!</b></span><br><br>
@@ -270,6 +309,11 @@
     <p class="text-sm highlight" style="margin-top: 0; display:inline-block;">※ 입금메시지: "성함+이사" (예: 홍길동이사) 로 부탁드립니다.</p>
 
     <form id="moveForm" onsubmit="submitForm(event)">
+      <div id="editModeBanner" class="edit-mode-banner">
+        <span><span id="editingApplicantNameText"></span>님의 신청 수정 중</span>
+        <button type="button" class="btn-cancel-edit" onclick="cancelEditMode()">수정 취소</button>
+      </div>
+
       <div class="form-group">
         <label>1. 입금 시간 및 입금자명</label>
         <input type="text" id="depositTime" placeholder="예: 11월 5일 오후 2시 홍길동이사" required>
@@ -352,8 +396,15 @@
         <textarea id="memo" placeholder="예: 엘리베이터 없는 3층입니다. / 오전 10시 이후 전화주세요. 등"></textarea>
       </div>
 
-      <button type="submit" class="btn-submit">신청서 제출하기</button>
+      <button type="submit" id="submitButton" class="btn-submit">신청서 제출하기</button>
       <div id="loading" class="loading">데이터를 안전하게 전송 중입니다. 잠시만 기다려주세요...</div>
+
+      <div id="submissionSuccess" class="submission-success" aria-live="polite">
+        <h3 id="submissionSuccessTitle">신청이 완료되었습니다.</h3>
+        <p id="submissionSuccessMessage">아래 정보로 신청 내역을 조회하고 수정할 수 있습니다.</p>
+        <span id="submissionLookupKey" class="lookup-key-value"></span>
+        <p>보내는 분 이름과 전화번호 뒤 4자리를 기억해 주세요.</p>
+      </div>
     </form>
   </div>
 </div>
@@ -361,6 +412,9 @@
 <script>
   // ★★★ 백엔드(구글 스크립트) 웹앱 URL 입력 영역 ★★★
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby-H6xpkyg4fSIQAG5cHzU4qycg5wpo1eZYB3vT0cKJDA1LKfVmJycW4bliHVx0TKMLfw/exec";
+  var editingToken = '';
+  var editingLookupName = '';
+  var editingPhoneLast4 = '';
 
   // 서비스별 기본 요금 (원)
   const SERVICE_FEES = {
@@ -443,6 +497,10 @@
       .replace(/^(\d{3})(\d{1,4})$/g, "$1-$2"); // 치고 있는 도중의 하이픈
   }
 
+  function onInputLastFour(target) {
+    target.value = target.value.replace(/[^0-9]/g, '').slice(0, 4);
+  }
+
   // 2. 계좌번호 복사 기능
   function copyAccount() {
     var textToCopy = "59704532966";
@@ -450,14 +508,14 @@
       navigator.clipboard.writeText(textToCopy).then(function() {
         alert("계좌번호(59704532966)가 복사되었습니다.");
       }).catch(function() {
-        fallbackCopyTextToClipboard(textToCopy);
+        fallbackCopyTextToClipboard(textToCopy, "계좌번호(59704532966)가 복사되었습니다.");
       });
     } else {
-      fallbackCopyTextToClipboard(textToCopy);
+      fallbackCopyTextToClipboard(textToCopy, "계좌번호(59704532966)가 복사되었습니다.");
     }
   }
 
-  function fallbackCopyTextToClipboard(text) {
+  function fallbackCopyTextToClipboard(text, successMessage) {
     var textArea = document.createElement("textarea");
     textArea.value = text;
     textArea.style.position = "fixed";
@@ -467,7 +525,7 @@
     textArea.select();
     try {
       var successful = document.execCommand('copy');
-      if(successful) alert("계좌번호(59704532966)가 복사되었습니다.");
+      if(successful) alert(successMessage || "복사되었습니다.");
       else alert("복사에 실패했습니다. 번호를 꾹 눌러 복사해주세요.");
     } catch (err) {
       alert("지원하지 않는 브라우저입니다.");
@@ -507,7 +565,101 @@
     if(layer) layer.style.display = 'none';
   }
 
-  // 4. 폼 데이터 제출
+  // 4. 기존 신청 조회 및 수정 모드
+  function lookupApplication() {
+    var applicantName = document.getElementById('lookupName').value.trim();
+    var phoneLast4 = document.getElementById('lookupPhoneLast4').value.trim();
+    var button = document.getElementById('lookupButton');
+    var status = document.getElementById('lookupStatus');
+
+    if (!applicantName || !/^\d{4}$/.test(phoneLast4)) {
+      setLookupStatus('보내는 분 이름과 전화번호 뒤 4자리를 정확히 입력해 주세요.', 'error');
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = '조회 중...';
+    setLookupStatus('', '');
+
+    postJson({
+      action: 'lookup',
+      applicantName: applicantName,
+      phoneLast4: phoneLast4
+    })
+    .then(function(data) {
+      if (data.result !== 'success') {
+        throw new Error(data.error || '신청 내역을 찾을 수 없습니다.');
+      }
+
+      populateApplicationForm(data.application, data.editToken, applicantName, phoneLast4);
+      setLookupStatus('신청 내역을 불러왔습니다. 아래 내용을 확인한 후 수정할 수 있습니다.', 'success');
+    })
+    .catch(function(error) {
+      setLookupStatus(error.message || '조회 중 오류가 발생했습니다.', 'error');
+    })
+    .finally(function() {
+      button.disabled = false;
+      button.textContent = '신청 내역 조회하기';
+    });
+  }
+
+  function populateApplicationForm(application, editToken, lookupName, phoneLast4) {
+    document.getElementById('depositTime').value = application.depositTime || '';
+    document.getElementById('requestDate1').value = application.requestDate1 || '';
+    document.getElementById('requestDate2').value = application.requestDate2 || '';
+    document.getElementById('applicantName').value = application.applicantName || '';
+    document.getElementById('applicantPhone').value = application.applicantPhone || '';
+    document.getElementById('buyerName').value = application.buyerName || '';
+    document.getElementById('buyerPhone').value = application.buyerPhone || '';
+    document.getElementById('address_before').value = application.addressBeforeBase || '';
+    document.getElementById('detail_before').value = application.addressBeforeDetail || '';
+    document.getElementById('address_after').value = application.addressAfterBase || '';
+    document.getElementById('detail_after').value = application.addressAfterDetail || '';
+    document.getElementById('options').value = application.options || '';
+    document.getElementById('memo').value = application.memo || '';
+
+    var secondHandRadios = document.querySelectorAll('input[name="isSecondHand"]');
+    for (var i = 0; i < secondHandRadios.length; i++) {
+      secondHandRadios[i].checked = secondHandRadios[i].value === application.isSecondHand;
+    }
+
+    editingToken = editToken;
+    editingLookupName = lookupName;
+    editingPhoneLast4 = phoneLast4;
+    document.getElementById('editingApplicantNameText').textContent = application.applicantName || lookupName;
+    document.getElementById('editModeBanner').style.display = 'flex';
+    document.getElementById('submitButton').textContent = '신청 내용 수정하기';
+    document.getElementById('submissionSuccess').style.display = 'none';
+    document.getElementById('moveForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function cancelEditMode() {
+    editingToken = '';
+    editingLookupName = '';
+    editingPhoneLast4 = '';
+    document.getElementById('moveForm').reset();
+    document.getElementById('editModeBanner').style.display = 'none';
+    document.getElementById('submitButton').textContent = '신청서 제출하기';
+    document.getElementById('submissionSuccess').style.display = 'none';
+    setLookupStatus('', '');
+  }
+
+  function setLookupStatus(message, type) {
+    var status = document.getElementById('lookupStatus');
+    status.textContent = message;
+    status.className = 'lookup-status' + (type ? ' ' + type : '');
+  }
+
+  function postJson(payload) {
+    return fetch(WEB_APP_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }).then(function(response) {
+      return response.json();
+    });
+  }
+
+  // 5. 신규 신청 또는 기존 신청 수정
   function submitForm(event) {
     event.preventDefault();
     
@@ -516,8 +668,11 @@
       return;
     }
 
-    document.querySelector('.btn-submit').style.display = 'none';
-    document.getElementById('loading').style.display = 'block';
+    var submitButton = document.getElementById('submitButton');
+    var loading = document.getElementById('loading');
+    submitButton.disabled = true;
+    loading.style.display = 'block';
+    loading.textContent = editingToken ? '수정 내용을 안전하게 전송 중입니다...' : '데이터를 안전하게 전송 중입니다. 잠시만 기다려주세요...';
 
     var isSecondHand = document.querySelector('input[name="isSecondHand"]:checked').value;
     var fullRequestDate = document.getElementById('requestDate1').value + " ~ " + document.getElementById('requestDate2').value;
@@ -527,6 +682,7 @@
     var fullAddressAfter = document.getElementById('address_after').value + " " + document.getElementById('detail_after').value;
 
     var payload = {
+      action: editingToken ? 'update' : 'create',
       depositTime: document.getElementById('depositTime').value,
       requestDate: fullRequestDate,
       applicantName: document.getElementById('applicantName').value,
@@ -534,35 +690,63 @@
       isSecondHand: isSecondHand,
       buyerName: document.getElementById('buyerName').value || '생략(동일)',
       buyerPhone: document.getElementById('buyerPhone').value || '생략(동일)',
-      addressBefore: fullAddressBefore,
-      addressAfter: fullAddressAfter,
+      addressBefore: fullAddressBefore.trim(),
+      addressAfter: fullAddressAfter.trim(),
+      addressBeforeBase: document.getElementById('address_before').value,
+      addressBeforeDetail: document.getElementById('detail_before').value,
+      addressAfterBase: document.getElementById('address_after').value,
+      addressAfterDetail: document.getElementById('detail_after').value,
       options: document.getElementById('options').value,
       memo: document.getElementById('memo').value
     };
 
-    fetch(WEB_APP_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    })
-    .then(response => response.json())
-    .then(data => {
+    if (editingToken) {
+      payload.editToken = editingToken;
+      payload.lookupName = editingLookupName;
+      payload.phoneLast4 = editingPhoneLast4;
+    }
+
+    postJson(payload)
+    .then(function(data) {
       if(data.result === 'success') {
-        alert("이사 서비스 신청이 성공적으로 접수되었습니다.\n확인 후 해피콜을 드리겠습니다. 감사합니다!");
-        window.location.reload();
+        var wasUpdate = payload.action === 'update';
+        document.getElementById('submissionSuccessTitle').textContent = wasUpdate ? '신청 내용이 수정되었습니다.' : '신청이 완료되었습니다.';
+        document.getElementById('submissionSuccessMessage').textContent = wasUpdate
+          ? '수정된 내용이 정상적으로 저장되었습니다.'
+          : '아래 정보로 신청 내역을 조회하고 수정할 수 있습니다.';
+        var newPhoneLast4 = payload.applicantPhone.replace(/[^0-9]/g, '').slice(-4);
+        document.getElementById('submissionLookupKey').textContent = payload.applicantName + ' / 전화번호 뒤 ' + newPhoneLast4;
+        document.getElementById('submissionSuccess').style.display = 'block';
+
+        if (wasUpdate) {
+          editingLookupName = payload.applicantName;
+          editingPhoneLast4 = newPhoneLast4;
+          document.getElementById('editingApplicantNameText').textContent = payload.applicantName;
+          document.getElementById('lookupName').value = payload.applicantName;
+          document.getElementById('lookupPhoneLast4').value = newPhoneLast4;
+          setLookupStatus('수정된 내용이 정상적으로 저장되었습니다.', 'success');
+        } else {
+          document.getElementById('lookupName').value = payload.applicantName;
+          document.getElementById('lookupPhoneLast4').value = newPhoneLast4;
+          document.getElementById('moveForm').reset();
+        }
+
+        document.getElementById('submissionSuccess').scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else {
-        alert("접수 중 오류가 발생했습니다. 톡톡으로 문의 부탁드립니다.");
+        alert(data.error || "처리 중 오류가 발생했습니다. 톡톡으로 문의 부탁드립니다.");
         console.error(data.error);
       }
     })
-    .catch(error => {
+    .catch(function(error) {
       alert("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
       console.error(error);
     })
-    .finally(() => {
-      document.querySelector('.btn-submit').style.display = 'block';
-      document.getElementById('loading').style.display = 'none';
+    .finally(function() {
+      submitButton.disabled = false;
+      loading.style.display = 'none';
     });
   }
+
 </script>
 
 </body>
