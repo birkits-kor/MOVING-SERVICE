@@ -375,7 +375,7 @@
       </div>
 
       <div class="form-group">
-        <label>8. 이사 가기 전 주소 (출발지)</label>
+        <label>8. 이사 가기 전 주소 (출발지) <span class="text-sm" style="font-weight:normal;">- 조립만 신청할 경우 생략 가능</span></label>
         <button type="button" class="btn-search" style="width: 100%; margin-bottom: 8px;" onclick="openPostcode('before')">🔍 주소 검색</button>
         <input type="hidden" id="postcode_before">
         <input type="text" id="address_before" placeholder="기본 주소 (클릭하여 검색)" style="margin-bottom: 5px;" readonly onclick="openPostcode('before')">
@@ -388,7 +388,7 @@
       </div>
 
       <div class="form-group">
-        <label>9. 이사 가는 주소 (도착지)</label>
+        <label>9. 이사 가는 주소 (도착지) <span class="text-sm" style="font-weight:normal;">- 분해만 신청할 경우 생략 가능</span></label>
         <button type="button" class="btn-search" style="width: 100%; margin-bottom: 8px;" onclick="openPostcode('after')">🔍 주소 검색</button>
         <input type="hidden" id="postcode_after">
         <input type="text" id="address_after" placeholder="기본 주소 (클릭하여 검색)" style="margin-bottom: 5px;" readonly onclick="openPostcode('after')">
@@ -486,6 +486,8 @@
     var resultPrice = document.getElementById('feeResultPrice');
     var resultUnit = document.getElementById('feeResultUnit');
 
+    updateAddressRequirements(serviceKey);
+
     if (!serviceKey || !selectedRegion) {
       resultBox.classList.remove('is-calculated');
       resultService.textContent = '서비스와 지역을 모두 선택해 주세요.';
@@ -503,6 +505,90 @@
     resultService.textContent = service.name + ' · ' + REGION_NAMES[regionKey] + ' · ' + bedConfig.name;
     resultPrice.textContent = fee.toLocaleString('ko-KR') + '원';
     resultUnit.textContent = '(' + (fee / 10000).toLocaleString('ko-KR') + '만원)';
+  }
+
+  function updateAddressRequirements(serviceKey) {
+    var beforeRequired = serviceKey !== 'assembly';
+    var afterRequired = serviceKey !== 'disassembly';
+
+    document.getElementById('detail_before').required = beforeRequired;
+    document.getElementById('detail_after').required = afterRequired;
+  }
+
+  function getSelectedFeeData() {
+    var serviceKey = document.getElementById('feeService').value;
+    var selectedRegion = document.querySelector('input[name="feeRegion"]:checked');
+    var selectedBedConfig = document.querySelector('input[name="feeBedConfig"]:checked');
+
+    if (!serviceKey || !selectedRegion || !selectedBedConfig) {
+      return null;
+    }
+
+    return {
+      serviceKey: serviceKey,
+      regionKey: selectedRegion.value,
+      bedConfigKey: selectedBedConfig.value
+    };
+  }
+
+  function restoreFeeSelection(application) {
+    var serviceKey = '';
+    var regionKey = '';
+    var bedConfigKey = '';
+    var key;
+
+    for (key in SERVICE_FEES) {
+      if (SERVICE_FEES[key].name === application.serviceName) {
+        serviceKey = key;
+        break;
+      }
+    }
+
+    for (key in REGION_NAMES) {
+      if (REGION_NAMES[key] === application.regionName) {
+        regionKey = key;
+        break;
+      }
+    }
+
+    for (key in BED_CONFIGS) {
+      if (BED_CONFIGS[key].name === application.bedConfigName) {
+        bedConfigKey = key;
+        break;
+      }
+    }
+
+    document.getElementById('feeService').value = serviceKey;
+
+    var regionRadios = document.querySelectorAll('input[name="feeRegion"]');
+    for (var i = 0; i < regionRadios.length; i++) {
+      regionRadios[i].checked = regionRadios[i].value === regionKey;
+    }
+
+    var bedConfigRadios = document.querySelectorAll('input[name="feeBedConfig"]');
+    for (var j = 0; j < bedConfigRadios.length; j++) {
+      bedConfigRadios[j].checked = bedConfigKey
+        ? bedConfigRadios[j].value === bedConfigKey
+        : bedConfigRadios[j].value === 'single';
+    }
+
+    calculateFee();
+  }
+
+  function resetFeeSelection() {
+    document.getElementById('feeService').value = '';
+
+    var regionRadios = document.querySelectorAll('input[name="feeRegion"]');
+    for (var i = 0; i < regionRadios.length; i++) {
+      regionRadios[i].checked = false;
+    }
+
+    var bedConfigRadios = document.querySelectorAll('input[name="feeBedConfig"]');
+    for (var j = 0; j < bedConfigRadios.length; j++) {
+      bedConfigRadios[j].checked = bedConfigRadios[j].value === 'single';
+    }
+
+    calculateFee();
   }
 
   // 1. 전화번호 입력 시 하이픈(-) 자동 추가 기능
@@ -633,6 +719,7 @@
     document.getElementById('detail_after').value = application.addressAfterDetail || '';
     document.getElementById('options').value = application.options || '';
     document.getElementById('memo').value = application.memo || '';
+    restoreFeeSelection(application);
 
     var secondHandRadios = document.querySelectorAll('input[name="isSecondHand"]');
     for (var i = 0; i < secondHandRadios.length; i++) {
@@ -654,6 +741,7 @@
     editingLookupName = '';
     editingPhoneLast4 = '';
     document.getElementById('moveForm').reset();
+    resetFeeSelection();
     document.getElementById('editModeBanner').style.display = 'none';
     document.getElementById('submitButton').textContent = '신청서 제출하기';
     document.getElementById('submissionSuccess').style.display = 'none';
@@ -678,9 +766,26 @@
   // 5. 신규 신청 또는 기존 신청 수정
   function submitForm(event) {
     event.preventDefault();
+
+    var selectedFeeData = getSelectedFeeData();
+    if (!selectedFeeData) {
+      alert("서비스 종류와 지역을 먼저 선택해 주세요.");
+      document.getElementById('feeCalculatorTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
     
-    if(!document.getElementById('address_before').value || !document.getElementById('address_after').value) {
-      alert("출발지와 도착지 주소를 모두 검색하여 입력해주세요.");
+    var beforeAddressRequired = selectedFeeData.serviceKey !== 'assembly';
+    var afterAddressRequired = selectedFeeData.serviceKey !== 'disassembly';
+    var addressBeforeBase = document.getElementById('address_before').value.trim();
+    var addressAfterBase = document.getElementById('address_after').value.trim();
+
+    if (beforeAddressRequired && !addressBeforeBase) {
+      alert("이사 가기 전 주소(출발지)를 검색하여 입력해 주세요.");
+      return;
+    }
+
+    if (afterAddressRequired && !addressAfterBase) {
+      alert("이사 가는 주소(도착지)를 검색하여 입력해 주세요.");
       return;
     }
 
@@ -694,8 +799,8 @@
     var fullRequestDate = document.getElementById('requestDate1').value + " ~ " + document.getElementById('requestDate2').value;
 
     // 우편번호 빼고 기본 주소와 상세 주소만 합치기
-    var fullAddressBefore = document.getElementById('address_before').value + " " + document.getElementById('detail_before').value;
-    var fullAddressAfter = document.getElementById('address_after').value + " " + document.getElementById('detail_after').value;
+    var fullAddressBefore = (addressBeforeBase + " " + document.getElementById('detail_before').value).trim();
+    var fullAddressAfter = (addressAfterBase + " " + document.getElementById('detail_after').value).trim();
 
     var payload = {
       action: editingToken ? 'update' : 'create',
@@ -708,12 +813,15 @@
       buyerPhone: document.getElementById('buyerPhone').value || '생략(동일)',
       addressBefore: fullAddressBefore.trim(),
       addressAfter: fullAddressAfter.trim(),
-      addressBeforeBase: document.getElementById('address_before').value,
+      addressBeforeBase: addressBeforeBase,
       addressBeforeDetail: document.getElementById('detail_before').value,
-      addressAfterBase: document.getElementById('address_after').value,
+      addressAfterBase: addressAfterBase,
       addressAfterDetail: document.getElementById('detail_after').value,
       options: document.getElementById('options').value,
-      memo: document.getElementById('memo').value
+      memo: document.getElementById('memo').value,
+      serviceKey: selectedFeeData.serviceKey,
+      regionKey: selectedFeeData.regionKey,
+      bedConfigKey: selectedFeeData.bedConfigKey
     };
 
     if (editingToken) {
@@ -745,6 +853,7 @@
           document.getElementById('lookupName').value = payload.applicantName;
           document.getElementById('lookupPhoneLast4').value = newPhoneLast4;
           document.getElementById('moveForm').reset();
+          resetFeeSelection();
         }
 
         document.getElementById('submissionSuccess').scrollIntoView({ behavior: 'smooth', block: 'center' });
