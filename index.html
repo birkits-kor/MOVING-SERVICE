@@ -45,7 +45,7 @@
     .form-section { padding: 30px 20px; background: #fff; }
     .form-group { margin-bottom: 20px; }
     label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; color: #1a1a1a; }
-    input[type="text"], input[type="tel"], input[type="date"], select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font-size: 14px; transition: border-color 0.2s; }
+    input[type="text"], input[type="tel"], input[type="email"], input[type="date"], select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font-size: 14px; transition: border-color 0.2s; }
     input:focus, select:focus, textarea:focus { border-color: #1a1a1a; outline: none; }
     textarea { resize: vertical; height: 80px; }
     
@@ -412,6 +412,12 @@
         <textarea id="memo" placeholder="예: 엘리베이터 없는 3층입니다. / 오전 10시 이후 전화주세요. 등"></textarea>
       </div>
 
+      <div class="form-group">
+        <label for="customerEmail">12. 접수 확인 이메일</label>
+        <p id="customerEmailHint" class="text-sm" style="margin-top:0;">* 신청 접수 및 수정 내용을 이 이메일로 보내드립니다. 정확히 입력해 주세요.</p>
+        <input type="email" id="customerEmail" placeholder="예: name@example.com" autocomplete="email" inputmode="email" maxlength="254" spellcheck="false" aria-describedby="customerEmailHint" required>
+      </div>
+
       <button type="submit" id="submitButton" class="btn-submit">신청서 제출하기</button>
       <div id="loading" class="loading">데이터를 안전하게 전송 중입니다. 잠시만 기다려주세요...</div>
 
@@ -711,6 +717,8 @@
     document.getElementById('requestDate2').value = application.requestDate2 || '';
     document.getElementById('applicantName').value = application.applicantName || '';
     document.getElementById('applicantPhone').value = application.applicantPhone || '';
+    document.getElementById('customerEmail').value = application.customerEmail || '';
+    setCustomerEmailMode(Boolean(application.customerEmail));
     document.getElementById('buyerName').value = application.buyerName || '';
     document.getElementById('buyerPhone').value = application.buyerPhone || '';
     document.getElementById('address_before').value = application.addressBeforeBase || '';
@@ -741,6 +749,7 @@
     editingLookupName = '';
     editingPhoneLast4 = '';
     document.getElementById('moveForm').reset();
+    setCustomerEmailMode(true);
     resetFeeSelection();
     document.getElementById('editModeBanner').style.display = 'none';
     document.getElementById('submitButton').textContent = '신청서 제출하기';
@@ -752,6 +761,27 @@
     var status = document.getElementById('lookupStatus');
     status.textContent = message;
     status.className = 'lookup-status' + (type ? ' ' + type : '');
+  }
+
+  function setCustomerEmailMode(required) {
+    document.getElementById('customerEmail').required = required;
+    document.getElementById('customerEmailHint').textContent = required
+      ? '* 신청 접수 및 수정 내용을 이 이메일로 보내드립니다. 정확히 입력해 주세요.'
+      : '* 이메일이 없는 기존 신청입니다. 입력하시면 수정 확인 메일을 받으실 수 있습니다. 생략해도 수정 가능합니다.';
+  }
+
+  function getSubmissionMessage(data, wasUpdate) {
+    var savedMessage = wasUpdate ? '수정된 내용이 정상적으로 저장되었습니다.' : '신청이 정상적으로 접수되었습니다.';
+    if (data.customerEmailSent === true) {
+      return savedMessage + ' ' + data.customerEmail + ' 주소로 확인 메일을 발송했습니다. 메일이 보이지 않으면 스팸함도 확인해 주세요.';
+    }
+    if (data.customerEmailSkipped === true) {
+      return savedMessage + ' 이메일이 등록되지 않아 확인 메일은 발송하지 않았습니다. 아래 정보로 조회·수정할 수 있습니다.';
+    }
+    if (data.customerEmailSent === false) {
+      return savedMessage + ' 확인 메일 발송에는 실패했지만 신청 내역은 저장되었습니다. 재신청하지 마시고 아래 정보로 조회하거나 톡톡으로 문의해 주세요.';
+    }
+    return savedMessage + ' 확인 메일 발송 여부는 확인되지 않았습니다. 아래 정보로 신청 내역을 조회·수정할 수 있습니다.';
   }
 
   function postJson(payload) {
@@ -766,6 +796,10 @@
   // 5. 신규 신청 또는 기존 신청 수정
   function submitForm(event) {
     event.preventDefault();
+
+    var emailInput = document.getElementById('customerEmail');
+    emailInput.value = emailInput.value.trim();
+    if (!emailInput.reportValidity()) return;
 
     var selectedFeeData = getSelectedFeeData();
     if (!selectedFeeData) {
@@ -808,6 +842,7 @@
       requestDate: fullRequestDate,
       applicantName: document.getElementById('applicantName').value,
       applicantPhone: document.getElementById('applicantPhone').value,
+      customerEmail: emailInput.value,
       isSecondHand: isSecondHand,
       buyerName: document.getElementById('buyerName').value || '생략(동일)',
       buyerPhone: document.getElementById('buyerPhone').value || '생략(동일)',
@@ -835,14 +870,13 @@
       if(data.result === 'success') {
         var wasUpdate = payload.action === 'update';
         document.getElementById('submissionSuccessTitle').textContent = wasUpdate ? '신청 내용이 수정되었습니다.' : '신청이 완료되었습니다.';
-        document.getElementById('submissionSuccessMessage').textContent = wasUpdate
-          ? '수정된 내용이 정상적으로 저장되었습니다.'
-          : '아래 정보로 신청 내역을 조회하고 수정할 수 있습니다.';
+        document.getElementById('submissionSuccessMessage').textContent = getSubmissionMessage(data, wasUpdate);
         var newPhoneLast4 = payload.applicantPhone.replace(/[^0-9]/g, '').slice(-4);
         document.getElementById('submissionLookupKey').textContent = payload.applicantName + ' / 전화번호 뒤 ' + newPhoneLast4;
         document.getElementById('submissionSuccess').style.display = 'block';
 
         if (wasUpdate) {
+          setCustomerEmailMode(Boolean(payload.customerEmail));
           editingLookupName = payload.applicantName;
           editingPhoneLast4 = newPhoneLast4;
           document.getElementById('editingApplicantNameText').textContent = payload.applicantName;
@@ -853,6 +887,7 @@
           document.getElementById('lookupName').value = payload.applicantName;
           document.getElementById('lookupPhoneLast4').value = newPhoneLast4;
           document.getElementById('moveForm').reset();
+          setCustomerEmailMode(true);
           resetFeeSelection();
         }
 
